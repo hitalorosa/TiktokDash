@@ -1,0 +1,51 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Env / secrets
+.env
+.env.local
+.env.*.local
+.env.development
+.env.production
+!.env.example
+
+# Next.js
+.next/
+out/
+next-env.d.ts
+
+# Build outputs
+dist/
+build/
+*.tsbuildinfo
+
+# Prisma generated client
+packages/db/generated/
+**/generated/prisma/
+
+# Turbo / caches
+.turbo/
+.cache/
+coverage/
+
+# Media / temp (downloads, audio, whisper models)
+media/
+tmp/
+*.mp4
+*.wav
+*.m4a
+*.bin
+!.gitkeep
+
+# Vercel
+.vercel
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS
+.DS_Store
+Thumbs.db
