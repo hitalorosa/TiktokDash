@@ -21,16 +21,20 @@ Next.js · TypeScript · Prisma · Postgres · Cloudflare R2 · Gemini API · Wh
 ```bash
 npm install
 cp .env.example .env        # o padrão já aponta para o Postgres local
+# edite o .env e cole sua GEMINI_API_KEY (grátis em aistudio.google.com/apikey)
+# para as funções de IA (análise, playbook, roteiros)
 
 npm run db:local            # terminal 1 — Postgres embutido (PGlite) na porta 5432
 
 # terminal 2:
 npm run db:push             # cria as tabelas
-npm run db:seed             # popula dados de exemplo (Top 30 fake)
+npm run db:seed             # (opcional) dados de exemplo (Top 30 fake)
 npm run dev                 # dashboard em http://localhost:3000
 ```
 
-> O worker (download/transcrição) roda em Docker/nuvem — não é necessário localmente para ver o dashboard.
+> Um **único `.env` na raiz** vale para tudo (os scripts carregam via `dotenv-cli`).
+> A **IA (Gemini) roda no próprio dashboard** — importe seu CSV/XLSX e clique em **Processar tudo (IA)**.
+> O worker (download + transcrição via Whisper) é opcional e roda em Docker/nuvem.
 
 ## Deploy
 
