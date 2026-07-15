@@ -1,0 +1,217 @@
+// Schema Prisma — Nouè TikTok Dash
+// Postgres (Supabase / Neon / local). Client gerado em @prisma/client.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// ─────────────── Enums ───────────────
+
+enum VideoStatus {
+  discovered
+  downloading
+  downloaded
+  transcribing
+  transcribed
+  analyzing
+  analyzed
+  failed
+}
+
+enum Tier {
+  tier1 // GMV >= tier1Gmv (meta principal)
+  tier2 // GMV >= tier2Gmv (fallback)
+  below // abaixo da meta, mas dentro do Top N
+}
+
+enum TranscriptProvider {
+  whisper
+  gemini
+  manual
+}
+
+enum ScriptMode {
+  human // roteiro para uma pessoa real gravar
+  ai    // roteiro para replicar com IA
+}
+
+enum ScriptStatus {
+  draft
+  approved
+  archived
+}
+
+enum JobType {
+  ingest
+  select
+  download
+  transcribe
+  analyze
+  aggregate
+  scripts
+}
+
+enum JobStatus {
+  pending
+  processing
+  done
+  failed
+}
+
+// ─────────────── Modelos ───────────────
+
+model Creator {
+  id          String   @id @default(cuid())
+  handle      String   @unique
+  displayName String?
+  avatarUrl   String?
+  createdAt   DateTime @default(now())
+
+  videos Video[]
+}
+
+model Video {
+  id            String      @id @default(cuid())
+  tiktokVideoId String?     @unique
+  url           String?
+  creator       Creator?    @relation(fields: [creatorId], references: [id])
+  creatorId     String?
+  caption       String?
+  postedAt      DateTime?
+  productIds    String[]    @default([])
+  thumbnailUrl  String?
+  mediaKey      String? // chave do vídeo no R2
+  audioKey      String? // chave do áudio no R2
+  durationSec   Int?
+  status        VideoStatus @default(discovered)
+  error         String?
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  metrics    VideoMetric[]
+  transcript Transcript?
+  analysis   VideoAnalysis?
+}
+
+model VideoMetric {
+  id            String   @id @default(cuid())
+  video         Video    @relation(fields: [videoId], references: [id], onDelete: Cascade)
+  videoId       String
+  windowStart   DateTime
+  windowEnd     DateTime
+  gmv           Float    @default(0)
+  orders        Int      @default(0)
+  unitsSold     Int      @default(0)
+  productClicks Int      @default(0)
+  views         Int      @default(0)
+  convRate      Float? // pedidos / cliques (ou / views)
+  commission    Float?
+  roas          Float? // null para orgânico
+  rank          Int? // posição no Top N (1 = melhor)
+  tier          Tier?
+  currency      String   @default("BRL")
+  createdAt     DateTime @default(now())
+
+  @@unique([videoId, windowStart, windowEnd])
+  @@index([windowStart, windowEnd])
+}
+
+model Transcript {
+  id        String             @id @default(cuid())
+  video     Video              @relation(fields: [videoId], references: [id], onDelete: Cascade)
+  videoId   String             @unique
+  lang      String             @default("pt")
+  text      String
+  segments  Json? // [{ start, end, text }]
+  provider  TranscriptProvider @default(whisper)
+  createdAt DateTime           @default(now())
+}
+
+model VideoAnalysis {
+  id           String   @id @default(cuid())
+  video        Video    @relation(fields: [videoId], references: [id], onDelete: Cascade)
+  videoId      String   @unique
+  strengths    String[] @default([]) // pontos fortes
+  replicate    String[] @default([]) // o que replicar
+  copyable     String[] @default([]) // o que copiar (frases/estruturas)
+  avoid        String[] @default([]) // o que evitar
+  hookAnalysis String? // análise do gancho (0-3s)
+  structure    String? // estrutura do roteiro
+  triggers     String[] @default([]) // gatilhos mentais
+  summary      String?
+  raw          Json?
+  model        String?
+  createdAt    DateTime @default(now())
+}
+
+model AggregateReport {
+  id               String   @id @default(cuid())
+  windowStart      DateTime
+  windowEnd        DateTime
+  videoCount       Int      @default(0)
+  summary          String?
+  winningStructure String? // estrutura vencedora de roteiro
+  themes           String[] @default([]) // temas/ângulos que mais vendem
+  recurringHooks   String[] @default([]) // ganchos recorrentes
+  avoidList        String[] @default([]) // o que evitar
+  recommendations  String[] @default([]) // recomendações práticas
+  raw              Json?
+  model            String?
+  createdAt        DateTime @default(now())
+
+  scripts Script[]
+}
+
+model Script {
+  id                String           @id @default(cuid())
+  report            AggregateReport? @relation(fields: [aggregateReportId], references: [id], onDelete: SetNull)
+  aggregateReportId String?
+  title             String
+  mode              ScriptMode
+  angle             String?
+  hook              String?
+  body              String? // roteiro falado (human) ou descrição (ai)
+  cta               String?
+  shotList          Json? // human: [{ scene, action, onScreenText }]
+  aiPrompt          String? // ai: prompt estruturado para ferramenta de IA
+  durationSec       Int?
+  sourceVideoIds    String[]         @default([])
+  status            ScriptStatus     @default(draft)
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+}
+
+model FilterConfig {
+  id         String   @id @default("default")
+  topN       Int      @default(30)
+  rankBy     String   @default("gmv") // gmv | roas | orders
+  tier1Gmv   Float    @default(10000)
+  tier2Gmv   Float    @default(5000)
+  windowDays Int      @default(30)
+  currency   String   @default("BRL")
+  minTier1   Int      @default(0) // qtd mínima de Tier1 desejada (informativo)
+  extra      Json?
+  updatedAt  DateTime @updatedAt
+}
+
+model Job {
+  id          String    @id @default(cuid())
+  type        JobType
+  payload     Json?
+  status      JobStatus @default(pending)
+  attempts    Int       @default(0)
+  maxAttempts Int       @default(3)
+  error       String?
+  claimedAt   DateTime?
+  runAt       DateTime  @default(now())
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([status, runAt])
+}
