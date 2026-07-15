@@ -1,0 +1,16 @@
+# Normaliza quebras de linha: texto = LF no repositório (evita ruído CRLF no Windows
+# e problemas de build no Linux/Vercel/Railway).
+* text=auto eol=lf
+
+# Binários
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.webp binary
+*.mp4 binary
+*.mov binary
+*.wav binary
+*.m4a binary
+*.bin binary
+*.ico binary
