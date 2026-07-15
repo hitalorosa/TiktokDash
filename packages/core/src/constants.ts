@@ -8,7 +8,7 @@ export const DEFAULT_FILTER = {
 };
 
 export const GEMINI = {
-  model: process.env.GEMINI_MODEL || "gemini-2.5-flash",
+  model: process.env.GEMINI_MODEL || "gemini-flash-lite-latest",
 };
 
 export const CURRENCIES = ["BRL", "USD"] as const;

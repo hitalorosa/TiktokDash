@@ -13,7 +13,8 @@ const DEFAULT_CONFIG = {
 
 export async function getDbOk(): Promise<boolean> {
   try {
-    await prisma.$queryRaw`SELECT 1`;
+    // query normal (evita prepared statement de $queryRaw, que conflita no PGlite local)
+    await prisma.filterConfig.findUnique({ where: { id: "default" } });
     return true;
   } catch {
     return false;

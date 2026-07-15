@@ -3,7 +3,7 @@ import { GoogleGenAI } from "@google/genai";
 import { extractJson } from "@noue/core";
 
 const KEY = process.env.GEMINI_API_KEY || "";
-export const GEMINI_MODEL = process.env.GEMINI_MODEL || "gemini-2.5-flash";
+export const GEMINI_MODEL = process.env.GEMINI_MODEL || "gemini-flash-lite-latest";
 
 let ai: GoogleGenAI | null = null;
 

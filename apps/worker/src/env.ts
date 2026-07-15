@@ -1,6 +1,6 @@
 export const env = {
   geminiKey: process.env.GEMINI_API_KEY || "",
-  geminiModel: process.env.GEMINI_MODEL || "gemini-2.5-flash",
+  geminiModel: process.env.GEMINI_MODEL || "gemini-flash-lite-latest",
   r2: {
     endpoint: process.env.R2_ENDPOINT || "",
     accessKeyId: process.env.R2_ACCESS_KEY_ID || "",

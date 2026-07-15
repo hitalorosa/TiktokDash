@@ -53,7 +53,7 @@ Ordem recomendada: **Banco → Storage → Gemini → Web → Worker**.
 
 ## 3. Gemini
 
-Gere a chave em **aistudio.google.com/apikey** → `GEMINI_API_KEY`. Modelo padrão: `gemini-2.5-flash`.
+Gere a chave em **aistudio.google.com/apikey** → `GEMINI_API_KEY`. Modelo padrão: `gemini-flash-lite-latest`.
 
 ---
 
@@ -64,7 +64,7 @@ Gere a chave em **aistudio.google.com/apikey** → `GEMINI_API_KEY`. Modelo padr
 3. **Framework:** Next.js (autodetectado). Build/Install: padrão.
 4. **Environment Variables** — o dashboard precisa do banco e do Gemini (a IA roda no próprio dashboard):
    - `DATABASE_URL` — Supabase pooler (obrigatória para exibir dados reais).
-   - `GEMINI_API_KEY` — obrigatória para análise/playbook/roteiros (grátis no AI Studio). `GEMINI_MODEL` opcional (`gemini-2.5-flash`).
+   - `GEMINI_API_KEY` — obrigatória para análise/playbook/roteiros (grátis no AI Studio). `GEMINI_MODEL` opcional (`gemini-flash-lite-latest`).
    - `DIRECT_URL` — só se for rodar migrations pelo Vercel (não é usada no runtime das queries).
    - `INGEST_SOURCE=csv` — opcional (apenas muda um rótulo na tela de config).
    - `R2_PUBLIC_BASE_URL` — opcional (habilita "Baixar vídeo" quando o worker já baixou).
@@ -88,7 +88,7 @@ Gere a chave em **aistudio.google.com/apikey** → `GEMINI_API_KEY`. Modelo padr
    - (o build usa a raiz como contexto; o `.dockerignore` exclui `apps/web`.)
 3. **Variables:**
    - `DATABASE_URL`, `DIRECT_URL` (mesmas do Supabase)
-   - `GEMINI_API_KEY`, `GEMINI_MODEL=gemini-2.5-flash`
+   - `GEMINI_API_KEY`, `GEMINI_MODEL=gemini-flash-lite-latest`
    - `R2_*` (endpoint, keys, bucket)
    - `INGEST_SOURCE=csv`
    - (opcional) `DOWNLOAD_PROXY_URL` — proxy residencial se o yt-dlp for bloqueado
@@ -107,7 +107,7 @@ Gere a chave em **aistudio.google.com/apikey** → `GEMINI_API_KEY`. Modelo padr
 | `DATABASE_URL` | ✅ | ✅ | Supabase pooled (`pgbouncer=true`) |
 | `DIRECT_URL` | migrations | ✅ | Supabase direct — não é usada no runtime do web |
 | `GEMINI_API_KEY` | ✅ | ✅ | Análise/playbook/roteiros (dashboard **e** worker) |
-| `GEMINI_MODEL` | opcional | ✅ | `gemini-2.5-flash` |
+| `GEMINI_MODEL` | opcional | ✅ | `gemini-flash-lite-latest` |
 | `R2_ACCOUNT_ID` / `R2_ENDPOINT` | | ✅ | Storage (worker) |
 | `R2_ACCESS_KEY_ID` / `R2_SECRET_ACCESS_KEY` | | ✅ | Storage (worker) |
 | `R2_BUCKET` | | ✅ | ex. `noue-ugc` |
