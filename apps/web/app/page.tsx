@@ -3,6 +3,7 @@ import { getDbOk, getTopVideos, computeStats, getLatestReport, getConfig } from 
 import { money, compactMoney, num, pct } from "@/lib/format";
 import { PageHead, EmptyState, splitSteps } from "@/components/ui";
 import { ActionButton } from "@/components/ActionButton";
+import { ProcessAll } from "@/components/ProcessAll";
 
 export const dynamic = "force-dynamic";
 
@@ -35,7 +36,7 @@ export default async function HomePage() {
       <PageHead
         eyebrow={`Visão geral · últimos ${config.windowDays} dias`}
         title="Top 30 que mais venderam"
-        actions={<ActionButton endpoint="/api/reprocess">Reprocessar</ActionButton>}
+        actions={<ProcessAll />}
       />
 
       {rows.length === 0 ? (

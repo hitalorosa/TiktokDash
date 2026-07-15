@@ -3,6 +3,7 @@ import { PageHead } from "@/components/ui";
 import { ConfigForm } from "@/components/ConfigForm";
 import { UploadCsvForm } from "@/components/UploadCsvForm";
 import { ActionButton } from "@/components/ActionButton";
+import { ProcessAll } from "@/components/ProcessAll";
 
 export const dynamic = "force-dynamic";
 
@@ -40,12 +41,17 @@ export default async function ConfigPage() {
         </div>
 
         <div className="card" style={{ padding: "24px 26px" }}>
-          <h2 className="display" style={{ fontSize: 18, margin: "0 0 4px" }}>Processamento</h2>
+          <h2 className="display" style={{ fontSize: 18, margin: "0 0 4px" }}>Processamento com IA</h2>
           <p className="muted" style={{ fontSize: 13, lineHeight: 1.55, margin: "0 0 16px" }}>
-            Reprocessar reordena o Top {config.topN} e enfileira download, transcrição e análise no worker.
+            “Processar tudo” reordena o Top {config.topN}, analisa cada vídeo com o Gemini, gera o playbook
+            dos {config.windowDays} dias e os roteiros. Também dá para rodar cada etapa separada.
           </p>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 12, marginBottom: 12 }}>
+            <ProcessAll />
+          </div>
           <div style={{ display: "flex", flexWrap: "wrap", gap: 12 }}>
-            <ActionButton endpoint="/api/reprocess">Reprocessar 30 dias</ActionButton>
+            <ActionButton endpoint="/api/reprocess" variant="ghost">Só reordenar</ActionButton>
+            <ActionButton endpoint="/api/aggregate" variant="ghost">Gerar playbook</ActionButton>
             <ActionButton endpoint="/api/scripts/generate" variant="ghost">Gerar roteiros</ActionButton>
           </div>
         </div>

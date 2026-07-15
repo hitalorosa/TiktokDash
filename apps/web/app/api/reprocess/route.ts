@@ -57,21 +57,8 @@ async function reprocess() {
     )
   );
 
-  // enfileira processamento para os Top N que têm URL e ainda não foram analisados
-  const targets = ranked
-    .filter((r) => r.rank <= topN && r.url && r.status !== "analyzed")
-    .map((r) => r.videoId);
-
-  await prisma.job.deleteMany({ where: { type: "download", status: "pending" } });
-  if (targets.length > 0) {
-    await prisma.job.createMany({
-      data: targets.map((videoId) => ({ type: "download" as const, payload: { videoId } })),
-    });
-  }
-
   return NextResponse.json({
-    message: `Top ${topN} reordenado. ${targets.length} vídeo(s) enfileirado(s) para processamento.`,
+    message: `Top ${topN} reordenado (${ranked.length} vídeos).`,
     reranked: ranked.length,
-    enqueued: targets.length,
   });
 }

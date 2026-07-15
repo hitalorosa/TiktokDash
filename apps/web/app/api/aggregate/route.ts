@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { runScripts } from "@/lib/ai-pipeline";
+import { runAggregate } from "@/lib/ai-pipeline";
 import { geminiReady } from "@/lib/gemini";
 
 export const runtime = "nodejs";
@@ -11,8 +11,8 @@ export async function POST() {
     return NextResponse.json({ error: "GEMINI_API_KEY não configurada." }, { status: 400 });
   }
   try {
-    const count = await runScripts();
-    return NextResponse.json({ message: `${count} roteiros gerados.` });
+    const reportId = await runAggregate();
+    return NextResponse.json({ message: "Playbook dos 30 dias gerado.", reportId });
   } catch (e) {
     return NextResponse.json({ error: (e as Error).message }, { status: 500 });
   }

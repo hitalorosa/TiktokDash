@@ -17,7 +17,10 @@ export function num(n: number | null | undefined): string {
 
 export function pct(n: number | null | undefined): string {
   if (n == null) return "—";
-  return `${(n * 100).toFixed(1)}%`;
+  const v = n * 100;
+  // mais casas quando muito pequeno (ex.: conversão por impressão)
+  const digits = v !== 0 && Math.abs(v) < 1 ? 2 : 1;
+  return `${v.toFixed(digits)}%`;
 }
 
 export function dateBR(d: Date | string | null | undefined): string {

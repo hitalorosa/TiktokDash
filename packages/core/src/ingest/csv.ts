@@ -5,19 +5,56 @@ import type { NormalizedVideoRow } from "../types";
 const HEADER_ALIASES: Record<keyof AliasTargets, string[]> = {
   tiktokVideoId: ["video id", "id do video", "video_id", "content id", "id do conteudo", "post id"],
   url: ["video url", "url", "link", "link do video", "video link", "url do video"],
-  creatorHandle: ["creator", "username", "criador", "handle", "creator username", "nome de usuario", "usuario"],
-  creatorName: ["creator name", "nome do criador", "nickname", "apelido", "nome"],
-  caption: ["caption", "legenda", "title", "titulo", "descricao", "description"],
-  postedAt: ["post time", "posted", "data", "data de publicacao", "create time", "publicado em", "date"],
-  gmv: ["gmv", "receita", "revenue", "vendas", "sales amount", "faturamento", "valor de vendas", "gmv (bruto)"],
-  orders: ["orders", "pedidos", "qtd pedidos", "order count", "numero de pedidos"],
-  unitsSold: ["units", "unidades", "unidades vendidas", "items sold", "quantidade", "itens vendidos"],
+  creatorHandle: [
+    "creator", "username", "criador", "handle", "creator username", "nome de usuario", "usuario",
+    "nome do criador", "creator name",
+  ],
+  creatorName: ["nickname", "apelido"],
+  caption: [
+    "caption", "legenda", "title", "titulo", "descricao", "description",
+    "nome do video", "video title",
+  ],
+  postedAt: [
+    "post time", "posted", "data", "data de publicacao", "create time", "publicado em", "date",
+    "data de publicacao do video",
+  ],
+  gmv: [
+    "gmv", "receita", "revenue", "vendas", "sales amount", "faturamento", "valor de vendas", "gmv (bruto)",
+    "valor bruto da mercadoria gmv",
+  ],
+  orders: [
+    "orders", "pedidos", "qtd pedidos", "order count", "numero de pedidos",
+    "pedidos de afiliados",
+  ],
+  unitsSold: [
+    "units", "unidades", "unidades vendidas", "items sold", "quantidade", "itens vendidos",
+    "itens vendidos de afiliados",
+  ],
   productClicks: ["clicks", "cliques", "product clicks", "cliques no produto"],
-  views: ["views", "visualizacoes", "video views", "impressoes", "impressions"],
-  commission: ["commission", "comissao", "est. commission", "comissao estimada", "est commission"],
+  views: [
+    "views", "visualizacoes", "video views", "impressoes", "impressions",
+    "impressoes de videos com produtos a venda",
+  ],
+  commission: [
+    "commission", "comissao", "est. commission", "comissao estimada", "est commission",
+  ],
   roas: ["roas"],
   productId: ["product id", "produto", "sku", "product", "id do produto"],
 };
+
+/** Extrai o @handle de uma URL do TikTok. */
+export function handleFromUrl(url?: string): string | undefined {
+  if (!url) return undefined;
+  const m = url.match(/@([A-Za-z0-9._]+)/);
+  return m?.[1];
+}
+
+/** Extrai o ID do vídeo de uma URL do TikTok (…/video/<id>). */
+export function videoIdFromUrl(url?: string): string | undefined {
+  if (!url) return undefined;
+  const m = url.match(/\/video\/(\d+)/);
+  return m?.[1];
+}
 
 interface AliasTargets {
   tiktokVideoId: string;
@@ -128,11 +165,13 @@ export function parseAffiliateCsv(text: string): ParseResult {
       continue;
     }
     const productId = get(row, "productId");
-    let handle = get(row, "creatorHandle")?.trim();
-    if (handle) handle = handle.replace(/^@/, "");
+    const url = get(row, "url")?.trim() || undefined;
+    let handle = get(row, "creatorHandle")?.trim()?.replace(/^@/, "");
+    if (!handle) handle = handleFromUrl(url);
+    const tiktokVideoId = get(row, "tiktokVideoId")?.trim() || videoIdFromUrl(url);
     rows.push({
-      tiktokVideoId: get(row, "tiktokVideoId")?.trim() || undefined,
-      url: get(row, "url")?.trim() || undefined,
+      tiktokVideoId: tiktokVideoId || undefined,
+      url,
       creatorHandle: handle || undefined,
       creatorName: get(row, "creatorName")?.trim() || undefined,
       caption: get(row, "caption")?.trim() || undefined,

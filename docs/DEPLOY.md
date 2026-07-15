@@ -62,15 +62,16 @@ Gere a chave em **aistudio.google.com/apikey** → `GEMINI_API_KEY`. Modelo padr
 1. **Import Project** a partir do GitHub (`hitalorosa/TiktokDash`).
 2. **Root Directory:** `apps/web` (o Vercel detecta o npm workspace e instala a partir da raiz).
 3. **Framework:** Next.js (autodetectado). Build/Install: padrão.
-4. **Environment Variables** — o dashboard só precisa do banco:
+4. **Environment Variables** — o dashboard precisa do banco e do Gemini (a IA roda no próprio dashboard):
    - `DATABASE_URL` — Supabase pooler (obrigatória para exibir dados reais).
+   - `GEMINI_API_KEY` — obrigatória para análise/playbook/roteiros (grátis no AI Studio). `GEMINI_MODEL` opcional (`gemini-2.5-flash`).
    - `DIRECT_URL` — só se for rodar migrations pelo Vercel (não é usada no runtime das queries).
    - `INGEST_SOURCE=csv` — opcional (apenas muda um rótulo na tela de config).
-   - `R2_PUBLIC_BASE_URL` — opcional (habilita o botão "Baixar vídeo" depois que o worker já baixou).
+   - `R2_PUBLIC_BASE_URL` — opcional (habilita "Baixar vídeo" quando o worker já baixou).
 
-   > As chaves do **R2** e do **Gemini** são do **worker**, não do dashboard — não precisa colá-las no Vercel.
-   > Sem `DATABASE_URL`, o deploy sobe normalmente e mostra o estado "banco não conectado". Você pode
-   > definir `DATABASE_URL` depois: como as páginas são dinâmicas, os dados aparecem no próximo acesso, sem redeploy.
+   > As chaves do **R2** são só do **worker** (download/transcrição) — não precisa no Vercel.
+   > Sem `DATABASE_URL`/`GEMINI_API_KEY`, o deploy sobe e mostra estados vazios/erro claro. Dá para
+   > definir depois: as páginas são dinâmicas, então basta salvar a env e recarregar (sem redeploy).
 5. **Deploy.** Cada push na `main` redeploya.
 
 > Se o Prisma reclamar de engine no runtime, adicione em `schema.prisma`:
@@ -105,8 +106,8 @@ Gere a chave em **aistudio.google.com/apikey** → `GEMINI_API_KEY`. Modelo padr
 |---|:--:|:--:|---|
 | `DATABASE_URL` | ✅ | ✅ | Supabase pooled (`pgbouncer=true`) |
 | `DIRECT_URL` | migrations | ✅ | Supabase direct — não é usada no runtime do web |
-| `GEMINI_API_KEY` | | ✅ | Análise + roteiros |
-| `GEMINI_MODEL` | | ✅ | `gemini-2.5-flash` |
+| `GEMINI_API_KEY` | ✅ | ✅ | Análise/playbook/roteiros (dashboard **e** worker) |
+| `GEMINI_MODEL` | opcional | ✅ | `gemini-2.5-flash` |
 | `R2_ACCOUNT_ID` / `R2_ENDPOINT` | | ✅ | Storage (worker) |
 | `R2_ACCESS_KEY_ID` / `R2_SECRET_ACCESS_KEY` | | ✅ | Storage (worker) |
 | `R2_BUCKET` | | ✅ | ex. `noue-ugc` |

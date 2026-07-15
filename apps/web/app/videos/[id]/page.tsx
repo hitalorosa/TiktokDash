@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { getVideo } from "@/lib/data";
 import { money, num, pct } from "@/lib/format";
 import { TierPill, splitSteps } from "@/components/ui";
+import { ActionButton } from "@/components/ActionButton";
 
 export const dynamic = "force-dynamic";
 
@@ -149,8 +150,12 @@ export default async function VideoPage({ params }: { params: Promise<{ id: stri
                 })}
               </div>
             ) : (
-              <div className="muted" style={{ fontSize: 13.5 }}>
-                Análise ainda não gerada — o worker analisa após baixar e transcrever.
+              <div style={{ display: "flex", flexDirection: "column", gap: 12, alignItems: "flex-start" }}>
+                <div className="muted" style={{ fontSize: 13.5 }}>
+                  Análise ainda não gerada. Gere agora com IA (usa a transcrição quando houver, senão a
+                  legenda + métricas).
+                </div>
+                <ActionButton endpoint={`/api/videos/${video.id}/analyze`}>Analisar com IA</ActionButton>
               </div>
             )}
           </div>

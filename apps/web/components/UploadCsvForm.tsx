@@ -5,10 +5,23 @@ import { useRouter } from "next/navigation";
 
 interface UploadResult {
   imported?: number;
+  totalRows?: number;
   skipped?: number;
   unmappedHeaders?: string[];
   message?: string;
   error?: string;
+}
+
+async function fileToCsv(file: File): Promise<string> {
+  const lower = file.name.toLowerCase();
+  if (lower.endsWith(".xlsx") || lower.endsWith(".xls")) {
+    const XLSX = await import("xlsx");
+    const buf = await file.arrayBuffer();
+    const wb = XLSX.read(buf, { type: "array" });
+    const ws = wb.Sheets[wb.SheetNames[0]!];
+    return XLSX.utils.sheet_to_csv(ws!);
+  }
+  return file.text();
 }
 
 export function UploadCsvForm() {
@@ -24,7 +37,7 @@ export function UploadCsvForm() {
     setLoading(true);
     setResult(null);
     try {
-      const content = await file.text();
+      const content = await fileToCsv(file);
       const res = await fetch("/api/upload", {
         method: "POST",
         headers: { "content-type": "application/json" },
@@ -43,14 +56,9 @@ export function UploadCsvForm() {
 
   return (
     <form onSubmit={onSubmit} style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-      <input
-        type="file"
-        name="file"
-        accept=".csv,text/csv"
-        style={{ fontSize: 13, color: "var(--sec)" }}
-      />
+      <input type="file" name="file" accept=".csv,.xlsx,.xls,text/csv" style={{ fontSize: 13, color: "var(--sec)" }} />
       <button type="submit" disabled={loading} className="btn btn-primary" style={{ width: "fit-content" }}>
-        {loading ? "Importando…" : "Importar CSV"}
+        {loading ? "Importando…" : "Importar CSV / XLSX"}
       </button>
 
       {result && (
@@ -60,7 +68,8 @@ export function UploadCsvForm() {
           ) : (
             <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
               <div>
-                ✓ Importados <b>{result.imported ?? 0}</b> · ignorados {result.skipped ?? 0}
+                ✓ Importados <b>{result.imported ?? 0}</b>
+                {result.totalRows ? <span className="muted"> de {result.totalRows} lidos</span> : null}
               </div>
               {result.unmappedHeaders && result.unmappedHeaders.length > 0 && (
                 <div className="muted">Colunas não mapeadas: {result.unmappedHeaders.join(", ")}</div>
