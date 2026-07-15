@@ -6,6 +6,17 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 export async function POST() {
+  try {
+    return await reprocess();
+  } catch (e) {
+    return NextResponse.json(
+      { error: "Banco de dados indisponível: " + (e as Error).message },
+      { status: 503 }
+    );
+  }
+}
+
+async function reprocess() {
   const config = await prisma.filterConfig.findUnique({ where: { id: "default" } });
   const topN = config?.topN ?? 30;
   const rankBy = (config?.rankBy ?? "gmv") as "gmv" | "orders" | "roas";

@@ -31,6 +31,7 @@ export async function POST(req: Request) {
     );
   }
 
+  try {
   const config = await prisma.filterConfig.findUnique({ where: { id: "default" } });
   const windowDays = config?.windowDays ?? 30;
   const rankBy = (config?.rankBy ?? "gmv") as "gmv" | "orders" | "roas";
@@ -140,4 +141,10 @@ export async function POST(req: Request) {
     skipped,
     unmappedHeaders,
   });
+  } catch (e) {
+    return NextResponse.json(
+      { error: "Banco de dados indisponível: " + (e as Error).message },
+      { status: 503 }
+    );
+  }
 }

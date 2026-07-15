@@ -5,6 +5,17 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 export async function POST() {
+  try {
+    return await generate();
+  } catch (e) {
+    return NextResponse.json(
+      { error: "Banco de dados indisponível: " + (e as Error).message },
+      { status: 503 }
+    );
+  }
+}
+
+async function generate() {
   const report = await prisma.aggregateReport.findFirst({ orderBy: { createdAt: "desc" } });
   if (!report) {
     return NextResponse.json(
