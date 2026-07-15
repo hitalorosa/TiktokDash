@@ -41,21 +41,20 @@ export function ActionButton({
     }
   }
 
-  const base =
-    "inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-colors disabled:opacity-60";
-  const styles =
-    variant === "primary"
-      ? "gradient-brand text-white hover:opacity-90"
-      : "border border-[var(--color-border)] bg-[var(--color-surface-2)] hover:text-white";
-
   return (
-    <div className="inline-flex flex-col items-start gap-1">
-      <button onClick={run} disabled={loading} className={`${base} ${styles}`}>
+    <span style={{ display: "inline-flex", flexDirection: "column", alignItems: "flex-start", gap: 4 }}>
+      <button
+        onClick={run}
+        disabled={loading}
+        className={`btn ${variant === "primary" ? "btn-primary" : "btn-ghost ink"}`}
+      >
         {loading ? "Processando…" : children}
       </button>
       {msg && (
-        <span className={`text-xs ${error ? "text-red-300" : "muted"}`}>{msg}</span>
+        <span style={{ fontSize: 11, color: error ? "var(--crit)" : "var(--muted)", maxWidth: 240 }}>
+          {msg}
+        </span>
       )}
-    </div>
+    </span>
   );
 }

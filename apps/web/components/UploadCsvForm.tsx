@@ -18,7 +18,7 @@ export function UploadCsvForm() {
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    const input = (e.currentTarget.elements.namedItem("file") as HTMLInputElement) || null;
+    const input = e.currentTarget.elements.namedItem("file") as HTMLInputElement | null;
     const file = input?.files?.[0];
     if (!file) return;
     setLoading(true);
@@ -42,34 +42,28 @@ export function UploadCsvForm() {
   }
 
   return (
-    <form onSubmit={onSubmit} className="flex flex-col gap-3">
+    <form onSubmit={onSubmit} style={{ display: "flex", flexDirection: "column", gap: 12 }}>
       <input
         type="file"
         name="file"
         accept=".csv,text/csv"
-        className="block w-full text-sm text-slate-300 file:mr-3 file:rounded-lg file:border-0 file:bg-[var(--color-surface-2)] file:px-3 file:py-2 file:text-sm file:text-white hover:file:opacity-90"
+        style={{ fontSize: 13, color: "var(--sec)" }}
       />
-      <button
-        type="submit"
-        disabled={loading}
-        className="gradient-brand inline-flex w-fit items-center rounded-lg px-4 py-2 text-sm font-medium text-white disabled:opacity-60"
-      >
+      <button type="submit" disabled={loading} className="btn btn-primary" style={{ width: "fit-content" }}>
         {loading ? "Importando…" : "Importar CSV"}
       </button>
 
       {result && (
-        <div className="card-2 p-3 text-sm">
+        <div className="card2" style={{ padding: 12, fontSize: 13 }}>
           {result.error ? (
-            <span className="text-red-300">Erro: {result.error}</span>
+            <span style={{ color: "var(--crit)" }}>Erro: {result.error}</span>
           ) : (
-            <div className="space-y-1">
+            <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
               <div>
-                ✓ Importados: <b>{result.imported ?? 0}</b> · ignorados: {result.skipped ?? 0}
+                ✓ Importados <b>{result.imported ?? 0}</b> · ignorados {result.skipped ?? 0}
               </div>
               {result.unmappedHeaders && result.unmappedHeaders.length > 0 && (
-                <div className="muted">
-                  Colunas não mapeadas: {result.unmappedHeaders.join(", ")}
-                </div>
+                <div className="muted">Colunas não mapeadas: {result.unmappedHeaders.join(", ")}</div>
               )}
             </div>
           )}

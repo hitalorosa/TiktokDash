@@ -1,54 +1,70 @@
 import type { Metadata } from "next";
+import { Fraunces, Hanken_Grotesk } from "next/font/google";
 import "./globals.css";
 import { NavLink } from "@/components/NavLink";
+import { ThemeToggle } from "@/components/ThemeToggle";
+
+const display = Fraunces({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-display",
+  display: "swap",
+});
+const body = Hanken_Grotesk({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-body",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
-  title: "Nouè · UGC Dashboard",
+  title: "Nouê · UGC Dashboard",
   description: "Top 30 UGC do TikTok Shop, transcrição, análise de IA e geração de roteiros.",
 };
 
 const NAV = [
-  { href: "/", label: "Visão geral", icon: "📊" },
-  { href: "/videos", label: "Top 30", icon: "🎬" },
-  { href: "/roteiros", label: "Roteiros", icon: "📝" },
-  { href: "/config", label: "Configurações", icon: "⚙️" },
+  { href: "/", label: "Visão geral" },
+  { href: "/videos", label: "Top 30" },
+  { href: "/roteiros", label: "Roteiros" },
+  { href: "/config", label: "Config" },
 ];
+
+const NO_FLASH = `try{var t=localStorage.getItem('noue-theme');if(t==='dark'||t==='light')document.documentElement.setAttribute('data-theme',t)}catch(e){}`;
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="pt-BR">
+    <html lang="pt-BR" className={`${display.variable} ${body.variable}`} suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: NO_FLASH }} />
+      </head>
       <body>
-        <div className="flex min-h-screen">
-          <aside className="hidden w-60 shrink-0 flex-col border-r border-[var(--color-border)] bg-[var(--color-surface)] p-4 md:flex">
-            <div className="mb-6 flex items-center gap-2 px-2">
-              <div className="gradient-brand flex h-9 w-9 items-center justify-center rounded-xl text-lg font-bold text-white">
-                N
-              </div>
-              <div>
-                <div className="text-sm font-semibold leading-tight">Nouè</div>
-                <div className="text-xs muted leading-tight">UGC Dashboard</div>
-              </div>
+        <div className="app">
+          <aside className="sidebar">
+            <div className="brand">
+              <span className="brand-name">Nouê</span>
+              <span className="brand-sub">UGC</span>
             </div>
-            <nav className="flex flex-col gap-1">
+            <nav className="navwrap">
               {NAV.map((n) => (
-                <NavLink key={n.href} {...n} />
+                <NavLink key={n.href} href={n.href} label={n.label} />
               ))}
             </nav>
-            <div className="mt-auto px-2 pt-6 text-xs muted">
-              TikTok Shop · últimos 30 dias
+            <div className="navfoot">
+              <ThemeToggle />
+              <div className="account">
+                <span className="avatar">N</span>
+                <div style={{ lineHeight: 1.25 }}>
+                  <div style={{ fontSize: "12.5px", fontWeight: 600, color: "var(--ink)" }}>
+                    Time Nouê
+                  </div>
+                  <div style={{ fontSize: "11px" }} className="muted">
+                    TikTok Shop · BR
+                  </div>
+                </div>
+              </div>
             </div>
           </aside>
-
-          <div className="flex min-w-0 flex-1 flex-col">
-            {/* topbar mobile */}
-            <header className="flex items-center gap-2 border-b border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-3 md:hidden">
-              <div className="gradient-brand flex h-7 w-7 items-center justify-center rounded-lg text-sm font-bold text-white">
-                N
-              </div>
-              <span className="font-semibold">Nouè UGC</span>
-            </header>
-            <main className="mx-auto w-full max-w-6xl flex-1 p-4 md:p-8">{children}</main>
-          </div>
+          <main className="main">{children}</main>
         </div>
       </body>
     </html>

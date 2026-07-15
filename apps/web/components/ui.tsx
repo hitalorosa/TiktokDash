@@ -1,120 +1,97 @@
 import type { ReactNode } from "react";
-import { TIER_LABEL, STATUS_LABEL } from "@/lib/format";
 
-export function Card({ children, className = "" }: { children: ReactNode; className?: string }) {
-  return <div className={`card p-5 ${className}`}>{children}</div>;
+export function Eyebrow({ children }: { children: ReactNode }) {
+  return <div className="eyebrow" style={{ marginBottom: 8 }}>{children}</div>;
 }
 
-export function StatCard({
-  label,
-  value,
-  sub,
-  accent,
+export function PageHead({
+  eyebrow,
+  title,
+  actions,
 }: {
-  label: string;
-  value: ReactNode;
-  sub?: ReactNode;
-  accent?: boolean;
+  eyebrow: string;
+  title: string;
+  actions?: ReactNode;
 }) {
   return (
-    <div className="card p-5">
-      <div className="text-xs uppercase tracking-wide muted">{label}</div>
-      <div className={`mt-2 text-2xl font-semibold ${accent ? "text-[var(--color-brand)]" : ""}`}>
-        {value}
+    <div className="page-head">
+      <div>
+        <Eyebrow>{eyebrow}</Eyebrow>
+        <h1 className="page-title">{title}</h1>
       </div>
-      {sub != null && <div className="mt-1 text-sm muted">{sub}</div>}
+      {actions && <div style={{ display: "flex", gap: 8, alignItems: "center" }}>{actions}</div>}
     </div>
   );
 }
 
-export function TierBadge({ tier }: { tier?: string | null }) {
-  if (!tier) return <span className="muted text-xs">—</span>;
-  const styles: Record<string, string> = {
-    tier1: "bg-emerald-500/15 text-emerald-300 border-emerald-500/30",
-    tier2: "bg-amber-500/15 text-amber-300 border-amber-500/30",
-    below: "bg-slate-500/15 text-slate-300 border-slate-500/30",
-  };
+const TIER = {
+  tier1: { cls: "pill t1", label: "Tier 1 · meta" },
+  tier2: { cls: "pill t2", label: "Tier 2 · fallback" },
+  below: { cls: "pill below", label: "Abaixo da meta" },
+} as const;
+
+export function TierPill({ tier }: { tier?: string | null }) {
+  if (!tier || !(tier in TIER)) return <span className="muted" style={{ fontSize: 11 }}>—</span>;
+  const t = TIER[tier as keyof typeof TIER];
+  return <span className={t.cls}>{t.label}</span>;
+}
+
+const STATUS: Record<string, { color: string; label: string }> = {
+  analyzed: { color: "var(--good)", label: "Analisado" },
+  failed: { color: "var(--crit)", label: "Falhou" },
+  discovered: { color: "var(--muted)", label: "Descoberto" },
+  downloading: { color: "var(--warn)", label: "Processando" },
+  downloaded: { color: "var(--warn)", label: "Processando" },
+  transcribing: { color: "var(--warn)", label: "Processando" },
+  transcribed: { color: "var(--warn)", label: "Processando" },
+  analyzing: { color: "var(--warn)", label: "Processando" },
+};
+
+export function StatusDot({ status, align = "right" }: { status?: string | null; align?: "left" | "right" }) {
+  const s = (status && STATUS[status]) || STATUS.discovered;
   return (
     <span
-      className={`inline-flex items-center rounded-full border px-2 py-0.5 text-xs font-medium ${styles[tier] ?? styles.below}`}
+      style={{
+        display: "inline-flex",
+        justifyContent: align === "right" ? "flex-end" : "flex-start",
+        alignItems: "center",
+        gap: 6,
+        fontSize: 12,
+        fontWeight: 600,
+        color: s.color,
+      }}
     >
-      {TIER_LABEL[tier] ?? tier}
+      <span style={{ width: 7, height: 7, borderRadius: 999, background: s.color }} />
+      {s.label}
     </span>
-  );
-}
-
-export function StatusBadge({ status }: { status?: string | null }) {
-  if (!status) return null;
-  const done = status === "analyzed";
-  const failed = status === "failed";
-  const cls = failed
-    ? "bg-red-500/15 text-red-300 border-red-500/30"
-    : done
-      ? "bg-emerald-500/15 text-emerald-300 border-emerald-500/30"
-      : "bg-sky-500/15 text-sky-300 border-sky-500/30";
-  return (
-    <span className={`inline-flex items-center rounded-full border px-2 py-0.5 text-xs ${cls}`}>
-      {STATUS_LABEL[status] ?? status}
-    </span>
-  );
-}
-
-export function Chip({ children }: { children: ReactNode }) {
-  return (
-    <span className="inline-flex items-center rounded-lg border border-[var(--color-border)] bg-[var(--color-surface-2)] px-2.5 py-1 text-sm">
-      {children}
-    </span>
-  );
-}
-
-export function SectionHeading({
-  title,
-  desc,
-  action,
-}: {
-  title: string;
-  desc?: string;
-  action?: ReactNode;
-}) {
-  return (
-    <div className="mb-4 flex items-start justify-between gap-4">
-      <div>
-        <h1 className="text-xl font-semibold">{title}</h1>
-        {desc && <p className="mt-1 text-sm muted">{desc}</p>}
-      </div>
-      {action}
-    </div>
   );
 }
 
 export function EmptyState({ title, children }: { title: string; children?: ReactNode }) {
   return (
-    <div className="card flex flex-col items-center justify-center gap-2 p-10 text-center">
-      <div className="text-lg font-medium">{title}</div>
-      <div className="max-w-md text-sm muted">{children}</div>
+    <div
+      className="card"
+      style={{
+        padding: 40,
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        gap: 8,
+        textAlign: "center",
+      }}
+    >
+      <div className="display" style={{ fontSize: 18 }}>{title}</div>
+      <div className="muted" style={{ fontSize: 14, maxWidth: 460 }}>{children}</div>
     </div>
   );
 }
 
-export function ListBlock({ title, items, icon }: { title: string; items: string[]; icon?: string }) {
-  return (
-    <div className="card-2 p-4">
-      <div className="mb-2 text-sm font-semibold">
-        {icon && <span className="mr-1">{icon}</span>}
-        {title}
-      </div>
-      {items.length ? (
-        <ul className="space-y-1.5 text-sm">
-          {items.map((it, i) => (
-            <li key={i} className="flex gap-2">
-              <span className="muted">•</span>
-              <span>{it}</span>
-            </li>
-          ))}
-        </ul>
-      ) : (
-        <div className="text-sm muted">—</div>
-      )}
-    </div>
-  );
+/** Divide uma "estrutura vencedora" (texto com →) em passos numerados. */
+export function splitSteps(text?: string | null): { n: string; t: string }[] {
+  if (!text) return [];
+  return text
+    .split(/→|->|→/)
+    .map((s) => s.trim())
+    .filter(Boolean)
+    .map((t, i) => ({ n: String(i + 1).padStart(2, "0"), t }));
 }
