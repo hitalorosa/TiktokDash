@@ -16,18 +16,38 @@ Dashboard para analisar os vídeos de **UGC / afiliados** do TikTok Shop da Nou�
 
 Next.js · TypeScript · Prisma · Postgres · Cloudflare R2 · Gemini API · Whisper.cpp · yt-dlp · npm workspaces.
 
-## Setup rápido (dev)
+## Setup rápido (dev, sem Docker/Supabase)
 
 ```bash
 npm install
-cp .env.example .env        # preencha as chaves
-npm run db:generate
+cp .env.example .env        # o padrão já aponta para o Postgres local
+
+npm run db:local            # terminal 1 — Postgres embutido (PGlite) na porta 5432
+
+# terminal 2:
 npm run db:push             # cria as tabelas
 npm run db:seed             # popula dados de exemplo (Top 30 fake)
-npm run dev                 # sobe o dashboard em http://localhost:3000
+npm run dev                 # dashboard em http://localhost:3000
 ```
 
-> O worker (download/transcrição) roda em Docker/nuvem, não é necessário localmente para ver o dashboard.
+> O worker (download/transcrição) roda em Docker/nuvem — não é necessário localmente para ver o dashboard.
+
+## Deploy
+
+Guia completo em **[`docs/DEPLOY.md`](docs/DEPLOY.md)**: Vercel (web) + Railway (worker) + Supabase + R2 + Gemini.
+
+## Scripts úteis
+
+| Comando | O quê |
+|---|---|
+| `npm run db:local` | Postgres local (PGlite) para dev |
+| `npm run db:push` | Cria/atualiza as tabelas |
+| `npm run db:seed` | Dados de exemplo |
+| `npm run db:studio` | Prisma Studio |
+| `npm run dev` | Dashboard (Next.js) |
+| `npm run worker` | Worker do pipeline |
+| `npm run typecheck` | Typecheck de todos os pacotes |
+| `npm test` | Testes (filtro Top 30) |
 
 ## Nota de uso
 

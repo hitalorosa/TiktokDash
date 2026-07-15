@@ -30,6 +30,9 @@ packages/db/generated/
 .cache/
 coverage/
 
+# Postgres local de dev (PGlite)
+.pgdata/
+
 # Media / temp (downloads, audio, whisper models)
 media/
 tmp/
